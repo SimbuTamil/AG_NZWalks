@@ -16,5 +16,31 @@ namespace NZWalks.API.Repositories
         {
            return await _NZWalkDbcontext.Regions.ToListAsync();
         }
+
+        public async Task<Region> GetRegionByID(Guid ID)
+        {
+            return await _NZWalkDbcontext.Regions.FirstOrDefaultAsync(x => x.ID == ID);
+        }
+
+        public async Task<Region> AddRegion(Region region)
+        {
+            region.ID = Guid.NewGuid();
+           await _NZWalkDbcontext.AddAsync(region);
+            await _NZWalkDbcontext.SaveChangesAsync();
+            return region;
+        }
+
+        public async Task<Region> DeleteRegion(Guid ID)
+        {
+            var region =  _NZWalkDbcontext.Regions.FirstOrDefault(x => x.ID == ID);
+            if (region == null)
+            {
+                return null;
+            }
+             _NZWalkDbcontext.Regions.Remove(region);
+            await _NZWalkDbcontext.SaveChangesAsync();
+            return region;
+
+        }
     }
 }
