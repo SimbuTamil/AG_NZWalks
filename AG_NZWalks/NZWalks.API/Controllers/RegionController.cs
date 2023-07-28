@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using NZWalks.API.Models.Domain;
 using NZWalks.API.Models.DTO;
 using NZWalks.API.Repositories;
@@ -7,35 +8,49 @@ namespace NZWalks.API.Controllers
 {
     [ApiController]
     [Route("[Controller]")]
+   // [Authorize]
     public class RegionController : Controller
     {
         private readonly IRegionRepository _regionRepository;
-        public RegionController(IRegionRepository regionRepository)
+        private readonly ILogger logger;
+        public RegionController(IRegionRepository regionRepository , ILogger<RegionController> logger)
         {
             this._regionRepository = regionRepository;
+            this.logger = logger;
         }
         [HttpGet]
         public async Task<IActionResult> GetALLRegion()
         {
-          var region = await _regionRepository.GetAllRegion();
+            var region = await _regionRepository.GetAllRegion();
             var regionDTO = new List<Models.DTO.RegionDTO>();
-            region.ToList().ForEach(x =>
-            { 
-                var region = new Models.DTO.RegionDTO()
+            try
+            {
+                throw new Exception("This is custom error");
+               
+                region.ToList().ForEach(x =>
                 {
+                    var region = new Models.DTO.RegionDTO()
+                    {
 
-                    ID= x.ID,
-                    Name= x.Name,
-                    Code = x.Code,
-                    Area = x.Area,
-                    Lat = x.Lat,
-                    Long = x.Long,
-                    Population = x.Population
-                };
-                regionDTO.Add(region);
-            });
-
+                        ID = x.ID,
+                        Name = x.Name,
+                        Code = x.Code,
+                        Area = x.Area,
+                        Lat = x.Lat,
+                        Long = x.Long,
+                        Population = x.Population
+                    };
+                    regionDTO.Add(region);
+                    logger.LogInformation($"Region {region}");
+                });
+                
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, ex.Message);
+            }
             return Ok(regionDTO);
+
 
         }
         [HttpGet]
